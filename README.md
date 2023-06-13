@@ -157,7 +157,7 @@ echo "PlainTextKeyFromDecryptedKey" | base64 --decode > datakeyPlainText.txt
 ![Alt text](https://github.com/veeCan54/TestMBPro/blob/main/images/regenDataKeyPlainText.png)
 
 
-Now decrypt this file using `openssl enc -d`, `-in secret-Encrypted.txt` (input file) and `./secret-Decrypted.txt` (output file) 
+**14. Now decrypt this file**  using `openssl enc -d`, `-in secret-Encrypted.txt` (input file) and `./secret-Decrypted.txt` (output file) 
 
 ```sh
 openssl enc -d -aes256 -in secret-Encrypted.txt -k fileb:////yourfilepath/datakeyPlainText.txt > ./secret-Decrypted.txt
