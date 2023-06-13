@@ -34,9 +34,9 @@ openssl enc -e -aes256 -in secret.txt -out secret-Encrypted.txt -k fileb:////you
 
 12. aws kms decrypt --encryption-context project=envencr-demo --ciphertext-blob fileb:////yourfilepath/encryptedDataKey.txt --profile iamadmin-general --region us-east-1
 
-11. echo "PlainTextKeyFromDecryptedKey" | base64 --decode > datakeyPlainText.txt
+13. echo "PlainTextKeyFromDecryptedKey" | base64 --decode > datakeyPlainText.txt
 
-12. openssl enc -d -aes256 -in secret-Encrypted.txt -k fileb:////yourfilepath/datakeyPlainText.txt > ./secret-Decrypted.txt
+14. openssl enc -d -aes256 -in secret-Encrypted.txt -k fileb:////yourfilepath/datakeyPlainText.txt > ./secret-Decrypted.txt
 
 
 
