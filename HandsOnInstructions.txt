@@ -23,7 +23,7 @@ echo "PlainTextKeyValueFromStep6" | base64 --decode > datakeyPlainText.txt
 echo "CipherTextBlobValueFromStep6" | base64 --decode > encryptedDataKey.txt
 
 9. Encrypt the file using DEK.
-openssl enc -e -aes256 -in secret.txt -out encryptedSecret.txt -k fileb:////yourfilepath/datakeyPlainText.txt
+openssl enc -e -aes256 -in secret.txt -out secret-Encrypted.txt -k fileb:////yourfilepath/datakeyPlainText.txt
 
 
 10. Discard DEK.
