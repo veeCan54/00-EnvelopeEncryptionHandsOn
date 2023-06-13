@@ -1,0 +1,43 @@
+1. Create key 
+aws kms create-key --description "CMK for Envelope Encryption Demo" --profile iamadmin-general --region "us-east-1" 
+
+2. List keys 
+aws kms list-keys --profile iamadmin-general --region us-east-1
+
+3. Create key alias
+aws kms create-alias --target-key-id "KeyID-Of-new-key" --alias-name alias/envEncryptionDemoCMK --profile iamadmin-general --region us-east-1
+
+4. List key aliases
+aws kms list-aliases --query 'Aliases[?AliasName==`alias/envEncryptionDemoCMK`]' --profile iamadmin-general --region us-east-1
+
+5. Create a file with some text in it. 
+touch secret.txt. Add some text and save the file. 
+
+6. Create DEK and Encrypted DEK
+aws kms generate-data-key --key-id alias/envEncryptionDemoCMK --key-spec AES_256 --encryption-context project=envencr-demo --profile iamadmin-general --region us-east-1
+
+7. Save DEK to a file 
+echo "PlainTextKeyValueFromStep6" | base64 --decode > datakeyPlainText.txt
+
+8. Save encrypted DEK to a file
+echo "CipherTextBlobValueFromStep6" | base64 --decode > encryptedDataKey.txt
+
+9. Encrypt the file using DEK.
+openssl enc -e -aes256 -in secret.txt -out encryptedSecret.txt -k fileb:////yourfilepath/datakeyPlainText.txt
+
+
+10. Discard DEK.
+ rm datakeyPlainText.txt
+
+11. Delete unencrypted data.
+ rm secret.txt
+
+12. aws kms decrypt --encryption-context project=envencr-demo --ciphertext-blob fileb:////yourfilepath/encryptedDataKey.txt --profile iamadmin-general --region us-east-1
+
+11. echo "PlainTextKeyFromDecryptedKey" | base64 --decode > datakeyPlainText.txt
+
+12. openssl enc -d -aes256 -in secret-Encrypted.txt -k fileb:////yourfilepath/datakeyPlainText.txt > ./secret-Decrypted.txt
+
+
+
+
