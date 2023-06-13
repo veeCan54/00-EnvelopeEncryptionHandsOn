@@ -87,7 +87,7 @@ DEK should not be saved in a file and or committed to a repository.
 DEK should not be logged.
 When using DEK in a program, it should only be in the stack, never in the heap. Heap dumps could potentially expose DEK.
 
-Another attribute to note is the `--encryption-context` attribute in the generate-data-api call. 
+Another attribute to note is the `--encryption-context` attribute in the generate-data-key api call. 
 >Encryption context is a set of non-secret key value pairs that can contain additional contextual information about the data. It is optional. If provided, aws uses encryption context to provide authenticated encryption in order to ensure data integrity and confidentiality. If the encryption context is provided for encryption, then it should be provided for decryption as well. One could say that even if your encrypted keys are compromised, without the encryption context they cannot be used for decryption. The other real reason being kms:decrypt privilege in IAM. Without kms:decrypt privilege, the encrypted key cannot be used to derive the plain text key in order to decrypt the data. 
 
 Now let’s proceed. Let’s save DEK and Encrypted DEK values in order to proceed with encryption and decryption. 
@@ -131,7 +131,7 @@ rm secret.txt
 
 At this point, we have our encrypted data (secret-Encrypted.txt) along with the Encrypted DEK (encryptedDataKey.txt) 
 
-Now your data is encrypted and safe. Say that later at some point, you want to decrypt this data. For demo purposes, that later would have to be now. 
+Now our data is encrypted and safe. Say that later at some point, we want to decrypt this data. _(Since this is a demo, that later would have to be now)_. 
 
 In order to decrypt, we need the DEK which we have discarded after encryption earlier.
 
