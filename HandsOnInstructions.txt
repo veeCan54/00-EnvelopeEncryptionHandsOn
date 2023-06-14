@@ -39,5 +39,10 @@ openssl enc -e -aes256 -in secret.txt -out secret-Encrypted.txt -k fileb:////you
 14. openssl enc -d -aes256 -in secret-Encrypted.txt -k fileb:////yourfilepath/datakeyPlainText.txt > ./secret-Decrypted.txt
 
 
+15. aws kms schedule-key-deletion \
+    --key-id arn:aws:kms:us-east-1:123456789:key/yourKeyID \
+    --pending-window-in-days 7 \
+    --profile iamadmin-general \
+    --region us-east-1
 
 
