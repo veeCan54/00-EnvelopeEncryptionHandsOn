@@ -1,10 +1,11 @@
 ## Learn Envelope Encryption in 30 minutes - Hands On
 
 Symmetric encryption is fast and with this type of encryption we are able to encrypt potentially large amounts of data. Envelope encryption is the practice of encrypting plain text data with a data key, and then encrypting the data key under another key. If these double encryptions sound a bit confusing to you, please read on. After you understand the concepts while doing this hands on, it should hopefully be clearer. If you are planning to create and use a KMS key on your own to use in your application, this guide should help. 
-In AWS, when we select for example SSE - KMS, aws does a lot of magic for us under the hood. 
+In AWS, when we select for example SSE - KMS, AWS does a lot of magic for us under the hood. 
 
-> **Note:** I try to use the aws cli as much as possible so that is what I am using here. 
-This demo will be completely manual. I am making an assumption that you are using an IAM user whose credentials have been configured by running `aws configure`. I am also assuming that this user has access to perform KMS operations e.g encrypt and decrypt.  For the purpose of this demo, it is better to grant the IAM user all kms access. In other words, `kms.*`. Please ensure this before you start. For the demo, I am using a profile `iamadmin-general` and region `us-east-1` which is sent as an attribute in aws cli commands. If you have a default profile and have configured a default region you don’t have to send these two attributes in your aws cli commands. The commands used in the Hands-On have been checked in [here](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/HandsOnInstructions.txt). Make sure values are substituted appropriately.
+> **Note:** This exercise will be done using the aws cli. We can check the status of keys using the AWS Admin console. I am making an assumption that you are using an IAM user whose credentials have been configured by running `aws configure`. I am also assuming that this IAM user has access to perform KMS operations e.g encrypt and decrypt. For the purpose of this demo, it is better to grant the IAM user all kms access. In other words, `kms.*`. Please ensure this before you start. For the demo, I am using a profile `iamadmin-general` and region `us-east-1` which is sent as an attribute in aws cli commands. If you have a default profile and have configured a default region you don’t have to send these two attributes in your aws cli commands. The commands used in the Hands On have been checked in [here](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/HandsOnInstructions.txt). Make sure values are substituted appropriately.
+
+> **Cost:** Heads up that this exercise will create a new KMS key in AWS which has a small cost involved. From current official AWS documentation - Each AWS KMS key that you create in AWS KMS costs $1/month (prorated hourly). Assuming this exercise can be completed relatively quickly it should give you an idea of the approximate cost. Please make sure to schedule key deletion after the Hands On. This step is included at the very end of the exercise. 
 
 ## Envelope encryption involves 3 keys -  CMK or KEK, DEK and Encrypted DEK. 
 
@@ -66,16 +67,16 @@ Here I would like to encrypt the text file secret.txt. This file has the content
 ![Alt text](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/images/secret.png)
 
 **6. In order to encrypt and decrypt this file, we need the DEK. We do this using the generate-data-key api call. AES 256 is the algorithm we would like to use here.** 
+> Note: If we use the `generate-data-key-without-plaintext` api call, we get only the CiphertextBlob back which can be used to derive the PlaintextKey later. Since this exercise is to demonstrate encryption, decryption and best practise, we're using the `generate-data-key` api call.
 
 ```sh
 aws kms generate-data-key --key-id alias/envEncryptionDemoCMK --key-spec AES_256 --encryption-context project=envencr-demo --region us-east-1 --profile iamadmin-general
 ```
 ![Alt text](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/images/generateDataKey.png)
 
-
 This returns two keys - 1. DEK and 2. Encrypted DEK. 
 
-`PlainText` field has the DEK value.
+`Plaintext` field has the DEK value.
 
 `CiphertextBlob` has the Encrypted DEK value. 
 
@@ -168,7 +169,33 @@ openssl enc -d -aes256 -in secret-Encrypted.txt -k fileb:////yourfilepath/datake
 
 When you `cat` the decrypted file, your encrypted secret “My super secret text.” will be retreived as in the screen shot above. 
 
+**15. Schedule Key deletion.**
+It is possible to disable a key and enable it again however since we won't need this key anymore we can schedule a key deletion. 
+The minimum waiting period for this is 7 days so that's what we will use. 
+The ```schedule-key-deletion``` api call needs the ARN of the key, which we already have from our ```list-keys``` api call.
+
+![Alt text](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/images/keyArn.png)
+
+```sh
+aws kms schedule-key-deletion \
+    --key-id arn:aws:kms:us-east-1:123456789:key/yourKeyID \
+    --pending-window-in-days 7 \
+    --profile iamadmin-general \
+    --region us-east-1
+
+```
+The response has KeyState, DeletionDate and PendingWindowInDays.
+
+![Alt text](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/images/pendingDeletionCli.png)
+
+The updated status shows on AWS admin console as well. 
+
+![Alt text](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/images/pendingDeletion.png)
+
+This key is scheduled to be deleted on DeletionDate. 
+Now we have cleaned up after the Hands On.
+
 **Summary:**
-KMS does the encryption and decryption of DEK, your application does the encryption and decryption of data using the DEK. 
-Plain text DEK should never be persisted. It should be recreated for every use and discarded immediately after use. 
+AWS KMS generates, encrypts, and decrypts data keys. However, AWS KMS does not store, manage, or track your data keys, or perform cryptographic operations with data keys. 
+You must use and manage data keys outside of AWS KMS. Plain text DEK should never be persisted. It should be recreated for every use and discarded immediately after use. 
 It is important to ensure that only authorized parties have `kms:encrypt` and `kms:decrypt` privileges. 
