@@ -15,7 +15,8 @@ CMK can only encrypt files up to 4 KB. When we create a KMS key via the admin co
 Usually the actual data we need to encrypt is much bigger than 4 KB. If CMK can only encrypt files up to 4 KB in size, what is its purpose? 
 CMK (KEK) is used to create what is called DEK - Data Encryption key. DEK is what encrypts and decrypts our data. The best practice is to have a distinct DEK for every piece of data for example objects in S3 buckets.
 
-![Alt text](https://github.com/veeCan54/TestMBPro/blob/main/images/image10.png)
+![Alt text](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/images/image10.png)
+
 
 The diagram should illustrate this better. This image is courtesy of Adrian Cantrill who creates amazing learning content at https://learn.cantrill.io/
 
@@ -27,18 +28,18 @@ aws kms create-key --description "CMK for Envelope Encryption Demo" --profile ia
 
 In the response, The `KeyId` field uniquely identifies the key.
 
-![Alt text](https://github.com/veeCan54/TestMBPro/blob/main/images/ceateKey.png)
+![Alt text](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/images/ceateKey.png)
 
 **2. List the keys in your account with the following command and you should see the new KeyId.**
 
 ```sh 
 aws kms list-keys --profile iamadmin-general --region us-east-1
 ```
-![Alt text](https://github.com/veeCan54/TestMBPro/blob/main/images/listKeys.png)
+![Alt text](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/images/listKeys.png)
 
 If you look via the Admin Console you should see this key.
 
-![Alt text](https://github.com/veeCan54/TestMBPro/blob/main/images/adminConsole1.png)
+![Alt text](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/images/adminConsole1.png)
 
 **3. Now to easily identify the key you can create an alias.**
 
@@ -51,25 +52,25 @@ aws kms create-alias --target-key-id "KeyID-Of-new-key" --alias-name alias/envEn
 ```sh
 aws kms list-aliases --query 'Aliases[?AliasName==`alias/envEncryptionDemoCMK`]' --profile iamadmin-general --region us-east-1
 ```
-![Alt text](https://github.com/veeCan54/TestMBPro/blob/main/images/aliasAdded.png)
+![Alt text](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/images/aliasAdded.png)
 
 Now the Admin Console shows the alias as well. 
 
-![Alt text](https://github.com/veeCan54/TestMBPro/blob/main/images/adminConsole2.png)
+![Alt text](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/images/adminConsole2.png)
 
 Now let’s see how to encrypt & decrypt with this CMK. 
 
 **5. Identify the data to encrypt.**
 Here I would like to encrypt the text file secret.txt. This file has the content “My super secret text.” Create the file with text in it.
 
-![Alt text](https://github.com/veeCan54/TestMBPro/blob/main/images/secret.png)
+![Alt text](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/images/secret.png)
 
 **6. In order to encrypt and decrypt this file, we need the DEK. We do this using the generate-data-key api call. AES 256 is the algorithm we would like to use here.** 
 
 ```sh
 aws kms generate-data-key --key-id alias/envEncryptionDemoCMK --key-spec AES_256 --encryption-context project=envencr-demo --region us-east-1 --profile iamadmin-general
 ```
-![Alt text](https://github.com/veeCan54/TestMBPro/blob/main/images/generateDataKey.png)
+![Alt text](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/images/generateDataKey.png)
 
 
 This returns two keys - 1. DEK and 2. Encrypted DEK. 
@@ -113,7 +114,7 @@ openssl enc -e -aes256 -in secret.txt -out secret-Encrypted.txt -k fileb:////you
 
 This creates the secret-Encrypted.txt file. 
 
-![Alt text](https://github.com/veeCan54/TestMBPro/blob/main/images/opensslEnc.png)
+![Alt text](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/images/opensslEnc.png)
 
 **10. As soon as this is done, discard the DEK.**
 
@@ -127,7 +128,7 @@ rm datakeyPlainText.txt
 rm secret.txt 
 ```
 
-![Alt text](https://github.com/veeCan54/TestMBPro/blob/main/images/rmSecret.png)
+![Alt text](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/images/rmSecret.png)
 
 At this point, we have our encrypted data (secret-Encrypted.txt) along with the Encrypted DEK (encryptedDataKey.txt) 
 
@@ -143,7 +144,7 @@ We derive the plaintext data key using the encrypted data key. Remember that in 
 aws kms decrypt --encryption-context project=envencr-demo --ciphertext-blob fileb:////yourfilepath/encryptedDataKey.txt --profile iamadmin-general --region us-east-1
 ```
 
-![Alt text](https://github.com/veeCan54/TestMBPro/blob/main/images/kmsDecrypt.png)
+![Alt text](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/images/kmsDecrypt.png)
 
 You will notice that this is the same PlainText DEK value. This is one of the 2 keys we got after Step 7 above. We discarded it after we encrypted the file secrets.txt earlier. 
 We are going to save this file, use it for decryption and discard it after use.
@@ -154,16 +155,16 @@ We are going to save this file, use it for decryption and discard it after use.
 echo "PlainTextKeyFromDecryptedKey" | base64 --decode > datakeyPlainText.txt
 ```
 
-![Alt text](https://github.com/veeCan54/TestMBPro/blob/main/images/regenDataKeyPlainText.png)
+![Alt text](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/images/regenDataKeyPlainText.png)
 
 
-Now decrypt this file using `openssl enc -d`, `-in secret-Encrypted.txt` (input file) and `./secret-Decrypted.txt` (output file) 
+**14. Now decrypt this file**  using `openssl enc -d`, `-in secret-Encrypted.txt` (input file) and `./secret-Decrypted.txt` (output file) 
 
 ```sh
 openssl enc -d -aes256 -in secret-Encrypted.txt -k fileb:////yourfilepath/datakeyPlainText.txt > ./secret-Decrypted.txt
 ```
 
-![Alt text](https://github.com/veeCan54/TestMBPro/blob/main/images/openSslDecrypt.png)
+![Alt text](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/images/openSslDecrypt.png)
 
 When you `cat` the decrypted file, your encrypted secret “My super secret text.” will be retreived as in the screen shot above. 
 
