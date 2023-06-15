@@ -195,7 +195,6 @@ The updated status shows on AWS admin console as well.
 This key is scheduled to be deleted on DeletionDate. 
 Now we have cleaned up after the Hands On.
 
-**Summary:**
-AWS KMS generates, encrypts, and decrypts data keys. However, AWS KMS does not store, manage, or track your data keys, or perform cryptographic operations with data keys. 
-You must use and manage data keys outside of AWS KMS. Plain text DEK should never be persisted. It should be recreated for every use and discarded immediately after use. 
+## Summary:
+AWS KMS generates, encrypts, and decrypts data keys. However, AWS KMS does not store, manage, or track your data keys, or perform cryptographic operations with data keys. You must use and manage data keys outside of AWS KMS. Plain text DEK should never be persisted. It should be recreated for every use and discarded immediately after use. <br>
 It is important to ensure that only authorized parties have `kms:encrypt` and `kms:decrypt` privileges. 
