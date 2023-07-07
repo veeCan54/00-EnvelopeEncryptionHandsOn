@@ -15,11 +15,9 @@ CMK can only encrypt files up to 4 KB. When we create a KMS key via the admin co
 
 Usually the actual data we need to encrypt is much bigger than 4 KB. If CMK can only encrypt files up to 4 KB in size, what is its purpose? 
 CMK (KEK) is used to create what is called DEK - Data Encryption key. DEK is what encrypts and decrypts our data. The best practice is to have a distinct DEK for every piece of data for example objects in S3 buckets.
-
-![Alt text](https://github.com/veeCan54/EnvelopeEncryptionHandsOn/blob/main/images/image10.png)
-
-
-The diagram should illustrate this better. This image is courtesy of Adrian Cantrill who creates amazing learning content at https://learn.cantrill.io/
+The diagram should illustrate this better.  
+![Alt text](https://github.com/veeCan54/00-EnvelopeEncryptionHandsOn/blob/main/images/envEncryptionGraphic.png)
+The bird graphic is courtesy of freepik.
 
 **1. Let us create a CMK manually via aws cli :**
 
@@ -196,5 +194,7 @@ This key is scheduled to be deleted on DeletionDate.
 Now we have cleaned up after the Hands On.
 
 ## Summary:
-AWS KMS generates, encrypts, and decrypts data keys. However, AWS KMS does not store, manage, or track your data keys, or perform cryptographic operations with data keys. You must use and manage data keys outside of AWS KMS. Plain text DEK should never be persisted. It should be recreated for every use and discarded immediately after use. <br>
-It is important to ensure that only authorized parties have `kms:encrypt` and `kms:decrypt` privileges. 
+AWS KMS generates, encrypts, and decrypts data keys. However, AWS KMS does not store, manage, or track your data keys, or perform cryptographic operations with data keys. You must use and manage data keys outside of AWS KMS. Plain text DEK should never be persisted. It should be recreated for every use and discarded immediately after use.  
+It is important to ensure that only authorized parties have `kms:encrypt` and `kms:decrypt` privileges.  
+Bird graphic courtesy of freepik <img src="https://github.com/veeCan54/00-EnvelopeEncryptionHandsOn/blob/main/images/freepic.png" width="70" height="10" />
+ 
